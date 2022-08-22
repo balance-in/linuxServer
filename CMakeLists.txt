@@ -13,7 +13,9 @@ project(my_project_name VERSION 0.0.1 LANGUAGES C CXX)
 
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
-add_subdirectory(./src/chp5)
+# add_subdirectory(./src/chp5)
+
+add_subdirectory(./src/chp6)
 
 add_subdirectory(./test)
 
