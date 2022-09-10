@@ -140,11 +140,95 @@ HTTP_CODE parse_content(char *buffer, int &checked_index,
     start_line = checked_index; /*记录下一行的起始位置*/
     /*checkstate记录主状态机当前的状态*/
     switch (checkstate) {
-      case CHECK_STATE_REQUESTLINE:
+      case CHECK_STATE_REQUESTLINE: /*第一个状态，分析请求行*/
+      {
+        retcode = parse_requestline(temp, checkstate);
+        if (retcode == BAD_REQUEST) {
+          return BAD_REQUEST;
+        }
         break;
-
-      default:
+      }
+      case CHECK_STATE_HEADER: /*第二个状态，分析头部字段*/
+      {
+        retcode = parese_headers(temp);
+        if (retcode == BAD_REQUEST) {
+          return BAD_REQUEST;
+        } else if (retcode == GET_REQUEST) {
+          return GET_REQUEST;
+        }
         break;
+      }
+      default: {
+        return INTERNAL_ERROR;
+      }
     }
   }
+  /*若没有读取到一个完整的行，则表示还需要继续读取客户数据才能进一步分析*/
+  if (linestatus == LINE_OPEN) {
+    return NO_REQUEST;
+  } else {
+    return BAD_REQUEST;
+  }
+}
+int main(int argc, char *argv[]) {
+  if (argc <= 2) {
+    printf("usage:%s ip_address port_number\n", basename(argv[0]));
+    return 1;
+  }
+
+  struct sockaddr_in address;
+  bzero(&address, sizeof(address));
+  address.sin_family = AF_INET;
+  address.sin_addr.s_addr = inet_addr(argv[1]);
+  address.sin_port = htons(atoi(argv[2]));
+
+  int listenfd = socket(PF_INET, SOCK_STREAM, 0);
+  assert(listenfd != 0);
+  int ret = bind(listenfd, (struct sockaddr *)&address, sizeof(address));
+  assert(ret != -1);
+  ret = listen(listenfd, 5);
+  assert(ret != -1);
+
+  struct sockaddr_in client_addr;
+  socklen_t client_addr_len = sizeof(client_addr);
+  int fd = accept(listenfd, (struct sockaddr *)&client_addr, &client_addr_len);
+  if (fd < 0) {
+    printf("errno is : %d\n", errno);
+  } else {
+    char buffer[BUFFER_SIZE]; /*读缓冲区*/
+    memset(buffer, '\0', BUFFER_SIZE);
+    int data_read = 0;
+    int read_index = 0;    /*当前已经读取了多少字节的客户数据*/
+    int checked_index = 0; /*当前已经分析完了多少字节的客户数据*/
+    int start_line = 0;    /*行在buffer中的起始位置*/
+    /*设置主状态机的初始状态*/
+    CHECK_STATE checkstate = CHECK_STATE_REQUESTLINE;
+    while (true) /*循环读取客户数据并分析之*/
+    {
+      data_read = recv(fd, buffer + read_index, BUFFER_SIZE - read_index, 0);
+      if (data_read == -1) {
+        printf("reading faild\n");
+        break;
+      } else if (data_read == 0) {
+        printf("remote client has closed the connection\n");
+        break;
+      }
+      read_index += data_read;
+      /*分析目前已经获得的所有客户数据*/
+      HTTP_CODE result = parse_content(buffer, checked_index, checkstate,
+                                       read_index, start_line);
+      if (result == NO_REQUEST) { /*尚未得到一个完整的HTTP请求*/
+        continue;
+      } else if (result == GET_REQUEST) { /*得到一个完整的、正确的HTTP请求*/
+        send(fd, szret[0], strlen(szret[0]), 0);
+        break;
+      } else {
+        send(fd, szret[1], strlen(szret[1]), 0);
+        break;
+      }
+    }
+    close(fd);
+  }
+  close(listenfd);
+  return 0;
 }
