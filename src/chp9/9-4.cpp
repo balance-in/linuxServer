@@ -1,3 +1,14 @@
+/**
+ * @file 9-4.cpp
+ * @author balance (2570682750@qq.com)
+ * @brief 使用EPOLLONESHOT事件
+ * @version 0.1
+ * @date 2022-09-13
+ *
+ * @copyright Copyright (c) 2022
+ *
+ */
+
 #include <arpa/inet.h>
 #include <assert.h>
 #include <errno.h>

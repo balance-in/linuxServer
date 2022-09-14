@@ -13,6 +13,8 @@ project(my_project_name VERSION 0.0.1 LANGUAGES C CXX)
 
 include_directories(${PROJECT_SOURCE_DIR}/include)
 
+find_package(Threads) #添加linux多线程支持
+
 # add_subdirectory(./src/chp5)
 
 add_subdirectory(./src/chp9)
