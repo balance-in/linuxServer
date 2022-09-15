@@ -4,6 +4,9 @@ set(CMAKE_CXX_STANDARD 17)
 # set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_C_STANDARD 11)
 
+set(LINK_EVENT /usr/lib/libevent/lib)
+
+
 if (NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
     message("Setting default build type to Release")
@@ -15,9 +18,10 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 
 find_package(Threads) #添加linux多线程支持
 
+link_directories(${LINK_EVENT})
 # add_subdirectory(./src/chp5)
 
-add_subdirectory(./src/chp12)
+add_subdirectory(./src/chp13)
 
 add_subdirectory(./test)
 
