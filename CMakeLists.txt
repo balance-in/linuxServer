@@ -19,7 +19,6 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 find_package(Threads) #添加linux多线程支持
 
 link_directories(${LINK_EVENT})
-# add_subdirectory(./src/chp5)
 
 add_subdirectory(./src/chp15)
 
