@@ -83,7 +83,6 @@ class http_conn {
   void close_conn(bool real_close = true);
   /*处理客户请求*/
   void process();
-  void process();
   /*非阻塞读操作*/
   bool read();
   /*非阻塞写操作*/

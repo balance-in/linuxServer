@@ -48,7 +48,7 @@ class threadpool {
 
 template <typename T>
 threadpool<T>::threadpool(int thread_number, int max_requests)
-    : m_thread(thread_number),
+    : m_thread_number(thread_number),
       m_max_requests(max_requests),
       m_stop(false),
       m_threads(NULL) {

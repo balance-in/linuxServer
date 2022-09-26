@@ -29,7 +29,7 @@ class sem {
     }
   }
   /*销毁信号量*/
-  sem::~sem() { sem_destroy(&m_sem); }
+  ~sem() { sem_destroy(&m_sem); }
   /*等待信号量*/
   bool wait() { return sem_wait(&m_sem) == 0; }
   /*增加信号量*/
